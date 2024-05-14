@@ -19,9 +19,8 @@ return new class extends Migration
             $table->string('nombre');
             $table->text('descripcion');
             $table->date('fechaVencimiento');
-            $table->enum('estado', ['pendiente', 'en_proceso', 'terminada', 'eliminada']);
+            $table->enum('estado', ['pendiente', 'en_proceso', 'terminada']);
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

@@ -4,7 +4,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\TareaController;
+Use App\Http\Controllers\TareaController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,9 +27,13 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard/tareas', function () {
+    return Inertia::render('Tareas');
+})->middleware(['auth', 'verified'])->name('dashboard.tareas');
+
+Route::get('/dashboard/usuarios', function () {
+    return Inertia::render('Usuarios');
+})->middleware(['auth', 'verified'])->name('dashboard.usuarios');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -37,5 +42,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::resource('tareas', TareaController::class)->middleware('auth');
+Route::resource('users', UserController::class)->middleware('auth');
+
+Route::get('/users/tareas/{user}', [UserController::class, 'indexTareas'])->middleware('auth');
 
 require __DIR__.'/auth.php';

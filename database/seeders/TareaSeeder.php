@@ -16,7 +16,7 @@ class TareaSeeder extends Seeder
             'nombre' => 'Tarea 1',
             'descripcion' => 'Descripción de la tarea 1',
             'fechaVencimiento' => Carbon::now()->addDays(1),
-            'user_id' => 1,
+            'user_id' => 2,
         ]);
         Tarea::create([
             'nombre' => 'Tarea 2',
@@ -28,10 +28,9 @@ class TareaSeeder extends Seeder
         Tarea::create([
             'nombre' => 'Limpiar la casa',
             'descripcion' => 'Descripción de la tarea 1',
-            'estado' => 'eliminada',
+            'estado' => 'pendiente',
             'fechaVencimiento' => Carbon::now()->addDays(1),
-            'user_id' => 1,
-            'deleted_at' => Carbon::now(),
+            'user_id' => 3,
         ]);
         Tarea::create([
             'nombre' => 'Tarea 3',

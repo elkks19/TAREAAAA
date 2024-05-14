@@ -21,6 +21,7 @@ import FloatLabel from 'primevue/floatlabel';
 </script>
 
 <template>
+    <AuthenticatedLayout>
 
         <Toolbar class="mb-4">
             <template #start>
@@ -41,16 +42,9 @@ import FloatLabel from 'primevue/floatlabel';
             <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
             <Column v-for="col of columns" :key="col.field" :field="col.field" :header="col.header" sortable />
 
-            <Column header="Estado" field="estado" sortable :filterMenuStyle="{ width: '15rem' }" style="min-width: 12rem">
+            <Column header="Estado" field="estado" sortable >
                 <template #body="{ data }">
                     <Tag :value="data.estado" :severity="getSeverity(data.estado)" />
-                </template>
-                <template #filter="{ filterModel }">
-                    <Dropdown v-model="filterModel.value" :options="statuses" placeholder="Select One" class="p-column-filter" showClear>
-                        <template #option="slotProps">
-                            <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
-                        </template>
-                    </Dropdown>
                 </template>
             </Column>
 
@@ -87,7 +81,12 @@ import FloatLabel from 'primevue/floatlabel';
                 <label for="fechaVencimientoCreate" class="font-semibold "> Fecha de Vencimiento </label>
             </FloatLabel>
 
-            <FloatLabel class="w-full mt-8 mb-5" id="estadoCreate">
+            <FloatLabel class="w-full mt-8 mb-5">
+                <Dropdown inputId="usuarioCreate" v-model="newTarea['usuario']" :options="usuarios" class="w-full" />
+                <label for="usuarioCreate" class="font-semibold"> Usuario </label>
+            </FloatLabel>
+
+            <FloatLabel class="w-full mt-8 mb-5">
                 <Dropdown id="estadoCreate" :options="statuses" v-model="newTarea['estado']" class="w-full">
                     <template #value="slotProps">
                         <div v-if="slotProps.value" class="flex items-center">
@@ -130,6 +129,12 @@ import FloatLabel from 'primevue/floatlabel';
                 <label for="fechaVencimientoEdit" class="font-semibold "> Fecha de Vencimiento </label>
             </FloatLabel>
 
+            <FloatLabel class="w-full mt-8 mb-5">
+                <Dropdown id="usuariosEdit" v-model="editableData.usuario" :options="usuarios" class="w-full" />
+
+                <label for="usuarioEdit" class="font-semibold "> Usuario </label>
+            </FloatLabel>
+
             <FloatLabel class="w-full mt-8 mb-5" id="estadoEdit">
                 <Dropdown id="estadoCreate" :options="statuses" v-model="editableData.estado" class="w-full">
                     <template #value="slotProps">
@@ -155,11 +160,12 @@ import FloatLabel from 'primevue/floatlabel';
 <!--TOAST-->
 <Toast/>
 
+</AuthenticatedLayout>
+
 </template>
 
 
 <script>
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
 
 import { useToast } from 'primevue/usetoast';
 
@@ -176,7 +182,6 @@ export default {
                 { field: 'fechaVencimiento', header: 'Vencimiento', type: 'date' },
                 { field: 'created_at', header: 'Creacion', type: 'date' },
                 { field: 'updated_at', header: 'UltimaEdicion', type: 'date' },
-                { field: 'estado', header: 'Estado', type: 'select' },
             ],
 
             menuModel: [
@@ -185,6 +190,7 @@ export default {
             ],
 
             datos: [],
+            usuarios: [],
             selectedData: null,
             selectedRow: null,
             editableData: null,
@@ -193,7 +199,8 @@ export default {
                 nombre: null,
                 descripcion: null,
                 fechaVencimiento: null,
-                estado: null
+                estado: null,
+                usuario: null
             },
 
             create: false,
@@ -202,12 +209,8 @@ export default {
             toast: null,
             customers: null,
             selectedCustomers: null,
-            filters: null,
-            statuses: ['pendiente', 'en_proceso', 'terminada', 'eliminada']
+            statuses: ['pendiente', 'en_proceso', 'terminada']
         };
-    },
-    created() {
-        this.initFilters();
     },
     mounted() {
         this.actualizarDataTable();
@@ -262,7 +265,9 @@ export default {
                 url: '/tareas',
             }).then(response => {
                 console.log(response.data);
-                this.datos = response.data;
+                this.datos = response.data.tareas;
+                this.usuarios = response.data.usuarios;
+                console.log(this.usuarios);
             }).catch(error => {
                 console.log(error);
             });
@@ -271,22 +276,6 @@ export default {
             this.selectedRow = event.data;
             this.$refs.cm.show(event.originalEvent);
             event.originalEvent.preventDefault();
-        },
-        clearFilter() {
-            this.initFilters();
-        },
-        initFilters() {
-            this.filters = {
-                global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-                name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-                'country.name': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-                representative: { value: null, matchMode: FilterMatchMode.IN },
-                date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
-                balance: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-                status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-                activity: { value: [0, 100], matchMode: FilterMatchMode.BETWEEN },
-                verified: { value: null, matchMode: FilterMatchMode.EQUALS }
-            };
         },
         getSeverity(status) {
             switch (status) {
@@ -298,9 +287,6 @@ export default {
 
                 case 'terminada':
                     return 'success';
-
-                case 'eliminada':
-                    return 'danger';
             }
         },
         exportCSV() {
@@ -347,4 +333,5 @@ export default {
         }
     }
 };
+
 </script>

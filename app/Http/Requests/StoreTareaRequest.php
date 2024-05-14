@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 use Illuminate\Support\Carbon;
 use App\Models\Tarea;
+use App\Models\User;
 
 class StoreTareaRequest extends FormRequest
 {
@@ -29,6 +30,7 @@ class StoreTareaRequest extends FormRequest
             'descripcion' => 'required|string',
             'fechaVencimiento' => 'required|date',
             'estado' => 'required|string|in:pendiente,en_proceso,terminada,eliminada',
+            'usuario' => 'required|string|exists:users,name',
         ];
     }
 
@@ -40,6 +42,7 @@ class StoreTareaRequest extends FormRequest
             'fechaVencimiento' => $this->fechaVencimiento,
             'estado' => $this->estado,
         ]);
+
         return $tarea;
     }
 }
